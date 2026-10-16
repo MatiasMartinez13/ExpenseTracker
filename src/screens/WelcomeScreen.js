@@ -12,18 +12,14 @@ export default function WelcomeScreen({ navigation }) {
         <Text style={styles.description}>
           Esta aplicación te permite registrar y llevar el control de tus gastos personales de forma sencilla.
         </Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('Expenses')}
-        >
-          <Text style={styles.buttonText}>Ver mis gastos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.buttonSecondary]}
-          onPress={() => navigation.navigate('NewExpense')}
-        >
-          <Text style={[styles.buttonText, styles.buttonTextSecondary]}>Cargar gasto</Text>
-        </TouchableOpacity>
+        <View style={styles.btnRow}>
+          <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={() => navigation.navigate('Expenses')}>
+            <Text style={[styles.buttonText, styles.buttonTextSecondary]}>Ver mis gastos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={() => navigation.navigate('NewExpense')}>
+            <Text style={[styles.buttonText, styles.buttonTextSecondary]}>Cargar gasto</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -36,44 +32,53 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
     padding: spacing.l,
+    paddingTop: 32,
   },
   appName: {
-    fontSize: 32,
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.muted,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  welcome: {
+    fontSize: 28,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: spacing.s,
-  },
-  welcome: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: spacing.s,
-    textAlign: 'center',
+    textAlign: 'left',
   },
   description: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.muted,
-    textAlign: 'center',
-    lineHeight: 22,
-    maxWidth: 300,
+    textAlign: 'left',
+    lineHeight: 21,
+    maxWidth: 320,
   },
-  button: {
-    marginTop: spacing.l,
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: spacing.m,
-    paddingHorizontal: spacing.l,
-    minWidth: 200,
-    alignItems: 'center',
+  
+  btnRow: { 
+    flexDirection: 'row', 
+    gap: 12, 
+    marginTop: 24 
   },
-  buttonSecondary: {
-    marginTop: spacing.m,
-    backgroundColor: colors.card,
-    borderWidth: 1,
+
+  button: { 
+    flex: 1, 
+    alignItems:'center',
+    justifyContent:'center',
+    paddingVertical: 12, 
+    paddingHorizontal: 8, 
+    borderRadius: 10 
+  },
+  buttonSecondary: { 
+    backgroundColor: colors.primary, 
     borderColor: colors.primary,
+    borderWidth: 1, 
+    borderColor: '#E5E7EB' 
   },
   buttonText: {
     color: colors.card,
@@ -81,6 +86,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   buttonTextSecondary: {
-    color: colors.primary,
+    color: colors.card,
   },
 });

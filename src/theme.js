@@ -10,3 +10,5 @@ export const colors = {
 };
 
 export const spacing = { s: 8, m: 16, l: 24 };
+
+export const categoryColors = { Comida:'#EF4444', Transporte:'#3B82F6', Ocio:'#F59E0B', Salud:'#10B981', Otros:'#6B7280' };

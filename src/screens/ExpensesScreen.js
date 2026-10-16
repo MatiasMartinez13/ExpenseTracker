@@ -1,19 +1,19 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing } from '../theme';
-
+import { colors, spacing, categoryColors } from '../theme';
 // Datos de ejemplo definidos manualmente para visualizar el listado (User Story #5).
 const EXPENSES = [
-  { id: '1', description: 'Supermercado', amount: 25000 },
-  { id: '2', description: 'Combustible', amount: 18000 },
-  { id: '3', description: 'Internet', amount: 32000 },
+  { id: '1', description: 'Supermercado', amount: 25000, category: 'Comida' },
+  { id: '2', description: 'Combustible', amount: 18000, category: 'Transporte' },
+  { id: '3', description: 'Internet', amount: 32000, category: 'Otros' },
 ];
 
-function ExpenseItem({ description, amount }) {
+function ExpenseItem({ description, amount, category }) {
   return (
     <View style={styles.item}>
-      <Text style={styles.description}>{description}</Text>
+      <View style={{ width:12, height:12, borderRadius:6, backgroundColor: categoryColors[category] }} />
+      <Text style={styles.description}>{description} · {category}</Text>
       <Text style={styles.amount}>${amount}</Text>
     </View>
   );
@@ -29,7 +29,7 @@ export default function ExpensesScreen() {
         data={EXPENSES}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ExpenseItem description={item.description} amount={item.amount} />
+          <ExpenseItem description={item.description} amount={item.amount} category={item.category} />
         )}
         contentContainerStyle={styles.list}
       />
