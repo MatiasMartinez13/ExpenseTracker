@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing } from '../theme';
+import { colors, spacing, categoryColors } from '../theme';
 import { deleteGasto, getGastos, getGastosSync } from '../services/gastosService';
 import { useFocusEffect } from '@react-navigation/native';
 
