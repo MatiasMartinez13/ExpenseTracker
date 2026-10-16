@@ -1,35 +1,47 @@
-import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '../theme';
+import { deleteGasto, getGastos, getGastosSync } from '../services/gastosService';
+import { useFocusEffect } from '@react-navigation/native';
 
-// Datos de ejemplo definidos manualmente para visualizar el listado (User Story #5).
-const EXPENSES = [
-  { id: '1', description: 'Supermercado', amount: 25000 },
-  { id: '2', description: 'Combustible', amount: 18000 },
-  { id: '3', description: 'Internet', amount: 32000 },
-];
 
-function ExpenseItem({ description, amount }) {
+function ExpenseItem({ id, nombre, amount, onDelete }) {
   return (
     <View style={styles.item}>
-      <Text style={styles.description}>{description}</Text>
+      <Text style={styles.description}>{nombre}</Text>
       <Text style={styles.amount}>${amount}</Text>
+      <Pressable testID={`btn-borrar-${id}`} onPress={() => onDelete(id)} style={styles.trash}>
+        <Text style={styles.trashText}>❌</Text>
+      </Pressable>
     </View>
   );
 }
 
 export default function ExpensesScreen() {
+  
+  const [expenses,setExpenses] = useState(() => getGastosSync())
+  useFocusEffect(
+    useCallback(() => {
+      getGastos().then(setExpenses);
+    }, [])
+  )
+
+  const handleDelete = async (id) => {
+    const actualizados = await deleteGasto(id);
+    setExpenses([...actualizados]);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Mis gastos</Text>
       </View>
       <FlatList
-        data={EXPENSES}
-        keyExtractor={(item) => item.id}
+        data={expenses}
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <ExpenseItem description={item.description} amount={item.amount} />
+          <ExpenseItem id={item.id} nombre={item.nombre} amount={item.amount} onDelete={handleDelete} />
         )}
         contentContainerStyle={styles.list}
       />
@@ -75,5 +87,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.primary,
+  },
+  trash: {
+    padding: spacing.s,
+    marginLeft: spacing.s,
+  },
+  trashText: {
+    fontSize: 20,
   },
 });

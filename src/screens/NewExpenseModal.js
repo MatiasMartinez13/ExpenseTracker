@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '../theme';
+import { addGasto } from '../services/gastosService';
 
 const CATEGORIES = ['Comida', 'Transporte', 'Ocio', 'Salud', 'Otros'];
 
@@ -10,12 +11,25 @@ export default function NewExpenseModal() {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
 
-  const handleSave = () => {
+  const handleSave = async() => {
+    if(!name || !amount || !category) {
+      Alert.alert("Error","Falta llenar campos")
+      return
+    }
+    const gasto = {
+      id: Math.floor(Math.random() * 100000) + 1,
+      nombre:name,
+      categoria:category,
+      amount:amount
+    }
+    
+    await addGasto(gasto)
     Alert.alert(
       'Nuevo gasto',
       `Nombre: ${name}\nMonto: $${amount}\nCategoría: ${category}`
     );
   };
+
 
   return (
     <SafeAreaView style={styles.container}>

@@ -25,6 +25,7 @@ jest.mock('react-native', () => {
   return {
     View: (props) => React.createElement('View', null, props.children),
     Text: (props) => React.createElement('Text', null, props.children),
+    Pressable: (props) => React.createElement('Pressable', { onPress: props.onPress, testID: props.testID }, props.children),
     FlatList,
     StyleSheet: {
       create: (styles) => styles,
@@ -38,6 +39,10 @@ jest.mock('react-native-safe-area-context', () => {
     SafeAreaView: (props) => React.createElement('SafeAreaView', null, props.children),
   };
 });
+
+jest.mock('@react-navigation/native', () => ({
+  useFocusEffect: (cb) => cb(),
+}));
 
 import ExpensesScreen from '../ExpensesScreen';
 
