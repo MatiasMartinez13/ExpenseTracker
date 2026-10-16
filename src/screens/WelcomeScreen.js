@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '../theme';
 
@@ -12,6 +12,11 @@ export default function WelcomeScreen({ navigation }) {
         <Text style={styles.description}>
           Esta aplicación te permite registrar y llevar el control de tus gastos personales de forma sencilla.
         </Text>
+        <Image
+          source={require('../assets/welcome.png')}
+          style={styles.heroImage}
+          resizeMode="cover"
+        />
         <View style={styles.btnRow}>
           <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={() => navigation.navigate('Expenses')}>
             <Text style={[styles.buttonText, styles.buttonTextSecondary]}>Ver mis gastos</Text>
@@ -59,6 +64,12 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     maxWidth: 320,
   },
+  heroImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 20,
+    marginTop: spacing.m,
+  },
   
   btnRow: { 
     flexDirection: 'row', 
@@ -76,14 +87,14 @@ const styles = StyleSheet.create({
   },
   buttonSecondary: { 
     backgroundColor: colors.primary, 
-    borderColor: colors.primary,
     borderWidth: 1, 
-    borderColor: '#E5E7EB' 
+    borderColor: colors.primary,
   },
   buttonText: {
     color: colors.card,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
   buttonTextSecondary: {
     color: colors.card,

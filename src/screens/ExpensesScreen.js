@@ -6,10 +6,15 @@ import { deleteGasto, getGastos, getGastosSync } from '../services/gastosService
 import { useFocusEffect } from '@react-navigation/native';
 
 
-function ExpenseItem({ id, nombre, amount, onDelete }) {
+function ExpenseItem({ id, nombre, categoria, amount, onDelete }) {
+  const dotColor = categoryColors[categoria] ?? colors.muted;
   return (
     <View style={styles.item}>
-      <Text style={styles.description}>{nombre}</Text>
+      <View style={[styles.dot, { backgroundColor: dotColor }]} />
+      <View style={styles.itemText}>
+        <Text style={styles.description}>{nombre}</Text>
+        <Text style={[styles.category, { color: dotColor }]}>{categoria}</Text>
+      </View>
       <Text style={styles.amount}>${amount}</Text>
       <Pressable testID={`btn-borrar-${id}`} onPress={() => onDelete(id)} style={styles.trash}>
         <Text style={styles.trashText}>❌</Text>
@@ -32,6 +37,8 @@ export default function ExpensesScreen() {
     setExpenses([...actualizados]);
   };
 
+  const total = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -41,7 +48,13 @@ export default function ExpensesScreen() {
         data={expenses}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <ExpenseItem id={item.id} nombre={item.nombre} amount={item.amount} onDelete={handleDelete} />
+          <ExpenseItem id={item.id} nombre={item.nombre} categoria={item.categoria} amount={item.amount} onDelete={handleDelete} />
+        )}
+        ListFooterComponent={() => (
+          <View style={styles.totalBox}>
+            <Text style={styles.totalLabel}>Total ({expenses.length} gastos)</Text>
+            <Text style={styles.totalValue}>${total}</Text>
+          </View>
         )}
         contentContainerStyle={styles.list}
       />
@@ -83,6 +96,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.text,
   },
+  category: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: spacing.s,
+  },
+  itemText: {
+    flex: 1,
+  },
   amount: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -94,5 +120,24 @@ const styles = StyleSheet.create({
   },
   trashText: {
     fontSize: 20,
+  },
+  totalBox: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.m,
+    alignItems: 'center',
+    marginTop: spacing.s,
+  },
+  totalLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.muted,
+  },
+  totalValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.text,
   },
 });

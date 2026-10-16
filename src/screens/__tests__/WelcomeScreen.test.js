@@ -9,6 +9,7 @@ jest.mock('react-native', () => {
     Text: (props) => React.createElement('Text', null, props.children),
     TouchableOpacity: (props) =>
       React.createElement('TouchableOpacity', null, props.children),
+    Image: () => React.createElement('Image', null),
     StyleSheet: {
       create: (styles) => styles,
     },

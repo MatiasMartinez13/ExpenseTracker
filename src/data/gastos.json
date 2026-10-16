@@ -1,5 +1,5 @@
 [
-  { "id": "1", "nombre": "Supermercado", "categoria": "Otro", "amount": 25000 },
-  { "id": "2", "nombre": "Combustible", "categoria": "Otro", "amount": 18000 },
-  { "id": "3", "nombre": "Internet", "categoria": "Otro", "amount": 32000 }
+  { "id": "1", "nombre": "Supermercado", "categoria": "Comida", "amount": 25000 },
+  { "id": "2", "nombre": "Combustible", "categoria": "Transporte", "amount": 18000 },
+  { "id": "3", "nombre": "Internet", "categoria": "Otros", "amount": 32000 }
 ]

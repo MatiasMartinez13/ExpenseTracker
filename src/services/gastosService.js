@@ -34,7 +34,7 @@ export async function addGasto(nuevoGasto){
   const nuevo = {
     id: nuevoGasto.id != null ? String(nuevoGasto.id) : Date.now().toString(),
     nombre: nuevoGasto.nombre,
-    categoria: nuevoGasto.categoria ?? "Otro",
+    categoria: nuevoGasto.categoria ?? "Otros",
     amount: Number(nuevoGasto.amount),
   };
   gastos.unshift(nuevo)
