@@ -6,11 +6,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#F3F4F6"
-    },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,8 +17,14 @@
         "backgroundColor": "#F3F4F6"
       }
     },
-    "web": {
-      "favicon": "#F3F4F6"
-    }
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "resizeMode": "contain",
+          "backgroundColor": "#F3F4F6"
+        }
+      ]
+    ]
   }
 }

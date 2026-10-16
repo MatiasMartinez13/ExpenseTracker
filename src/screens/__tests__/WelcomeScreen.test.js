@@ -1,5 +1,5 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import renderer, { act } from 'react-test-renderer';
 
 // Mock ligero de react-native para evitar el puente nativo en entorno de prueba
 jest.mock('react-native', () => {
@@ -16,24 +16,28 @@ jest.mock('react-native', () => {
 
 import WelcomeScreen from '../WelcomeScreen';
 
+function renderTree() {
+  let component;
+  act(() => {
+    component = renderer.create(<WelcomeScreen />);
+  });
+  return component.toJSON();
+}
+
 describe('WelcomeScreen - User Story #3: Construir pantalla de bienvenida', () => {
   test('renderiza sin errores', () => {
-    const tree = renderer.create(<WelcomeScreen />).toJSON();
-    expect(tree).toBeTruthy();
+    expect(renderTree()).toBeTruthy();
   });
 
   test('muestra el nombre ExpenseTracker', () => {
-    const tree = JSON.stringify(renderer.create(<WelcomeScreen />).toJSON());
-    expect(tree).toContain('ExpenseTracker');
+    expect(JSON.stringify(renderTree())).toContain('ExpenseTracker');
   });
 
   test('muestra un mensaje de bienvenida', () => {
-    const tree = JSON.stringify(renderer.create(<WelcomeScreen />).toJSON());
-    expect(tree).toContain('¡Bienvenido a ExpenseTracker!');
+    expect(JSON.stringify(renderTree())).toContain('¡Bienvenido a ExpenseTracker!');
   });
 
   test('muestra una descripción de registro de gastos', () => {
-    const tree = JSON.stringify(renderer.create(<WelcomeScreen />).toJSON());
-    expect(tree).toMatch(/registrar.*gastos/i);
+    expect(JSON.stringify(renderTree())).toMatch(/registrar.*gastos/i);
   });
 });
