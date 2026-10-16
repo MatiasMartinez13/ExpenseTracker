@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '../theme';
 
-export default function WelcomeScreen() {
+export default function WelcomeScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -11,6 +12,18 @@ export default function WelcomeScreen() {
         <Text style={styles.description}>
           Esta aplicación te permite registrar y llevar el control de tus gastos personales de forma sencilla.
         </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('Expenses')}
+        >
+          <Text style={styles.buttonText}>Ver mis gastos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.buttonSecondary]}
+          onPress={() => navigation.navigate('NewExpense')}
+        >
+          <Text style={[styles.buttonText, styles.buttonTextSecondary]}>Cargar gasto</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -46,5 +59,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     maxWidth: 300,
+  },
+  button: {
+    marginTop: spacing.l,
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    paddingVertical: spacing.m,
+    paddingHorizontal: spacing.l,
+    minWidth: 200,
+    alignItems: 'center',
+  },
+  buttonSecondary: {
+    marginTop: spacing.m,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  buttonText: {
+    color: colors.card,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  buttonTextSecondary: {
+    color: colors.primary,
   },
 });

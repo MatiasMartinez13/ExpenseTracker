@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '../theme';
 
 const CATEGORIES = ['Comida', 'Transporte', 'Ocio', 'Salud', 'Otros'];

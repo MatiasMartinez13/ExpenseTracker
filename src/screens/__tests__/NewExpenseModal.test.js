@@ -20,6 +20,13 @@ jest.mock('react-native', () => {
   };
 });
 
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  return {
+    SafeAreaView: (props) => React.createElement('SafeAreaView', null, props.children),
+  };
+});
+
 import { Alert, Pressable, TextInput } from 'react-native';
 import NewExpenseModal from '../NewExpenseModal';
 

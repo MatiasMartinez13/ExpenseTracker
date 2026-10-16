@@ -7,10 +7,18 @@ jest.mock('react-native', () => {
   return {
     View: (props) => React.createElement('View', null, props.children),
     Text: (props) => React.createElement('Text', null, props.children),
-    SafeAreaView: (props) => React.createElement('SafeAreaView', null, props.children),
+    TouchableOpacity: (props) =>
+      React.createElement('TouchableOpacity', null, props.children),
     StyleSheet: {
       create: (styles) => styles,
     },
+  };
+});
+
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  return {
+    SafeAreaView: (props) => React.createElement('SafeAreaView', null, props.children),
   };
 });
 
