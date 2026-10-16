@@ -27,6 +27,16 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn().mockResolvedValue(undefined),
+  removeItem: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../services/gastosService', () => ({
+  addGasto: jest.fn().mockResolvedValue({ id: '99' }),
+}));
+
 import { Alert, Pressable, TextInput } from 'react-native';
 import NewExpenseModal from '../NewExpenseModal';
 
@@ -92,17 +102,22 @@ describe('NewExpenseModal - User Story: Construir formulario de carga de gastos'
     expect(Alert.alert).toHaveBeenCalled();
   });
 
-  test('se puede escribir en los inputs y el botón refleja los datos cargados', () => {
+  test('se puede escribir en los inputs y el botón refleja los datos cargados', async () => {
     const screen = renderScreen();
     const inputs = screen.root.findAllByType(TextInput);
     const nombre = inputs.find((input) => input.props.testID === 'input-nombre');
+    const monto = inputs.find((input) => input.props.testID === 'input-monto');
 
     act(() => {
       nombre.props.onChangeText('Supermercado');
     });
 
     act(() => {
-      findButton(screen, 'btn-guardar').props.onPress();
+      monto.props.onChangeText('1500');
+    });
+
+    await act(async () => {
+      await findButton(screen, 'btn-guardar').props.onPress();
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -111,13 +126,23 @@ describe('NewExpenseModal - User Story: Construir formulario de carga de gastos'
     );
   });
 
-  test('se puede cambiar la categoría seleccionada', () => {
+  test('se puede cambiar la categoría seleccionada', async () => {
     const screen = renderScreen();
+    const inputs = screen.root.findAllByType(TextInput);
+    const nombre = inputs.find((i) => i.props.testID === 'input-nombre');
+    const monto = inputs.find((i) => i.props.testID === 'input-monto');
+
+    act(() => {
+      nombre.props.onChangeText('Nafta');
+    });
+    act(() => {
+      monto.props.onChangeText('18000');
+    });
     act(() => {
       findButton(screen, 'categoria-Transporte').props.onPress();
     });
-    act(() => {
-      findButton(screen, 'btn-guardar').props.onPress();
+    await act(async () => {
+      await findButton(screen, 'btn-guardar').props.onPress();
     });
     expect(Alert.alert).toHaveBeenCalledWith(
       'Nuevo gasto',
