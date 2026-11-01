@@ -2,7 +2,7 @@
   "expo": {
     "name": "ExpenseTracker",
     "slug": "expensetracker",
-    "sdkVersion": "57.0.0",
+    "sdkVersion": "58.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -24,7 +24,9 @@
           "resizeMode": "contain",
           "backgroundColor": "#F3F4F6"
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-font"
     ]
   }
 }
