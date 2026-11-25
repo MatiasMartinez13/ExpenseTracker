@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import { ExpensesProvider } from './src/context/ExpensesContext';
 import StackNavigator from './src/navigation/StackNavigator';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -17,10 +18,12 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <NavigationContainer>
-          <StackNavigator />
-          <StatusBar style="auto" />
-        </NavigationContainer>
+        <ExpensesProvider>
+          <NavigationContainer>
+            <StackNavigator />
+            <StatusBar style="auto" />
+          </NavigationContainer>
+        </ExpensesProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

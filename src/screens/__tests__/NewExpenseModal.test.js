@@ -27,23 +27,18 @@ jest.mock('react-native-safe-area-context', () => {
   };
 });
 
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn().mockResolvedValue(null),
-  setItem: jest.fn().mockResolvedValue(undefined),
-  removeItem: jest.fn().mockResolvedValue(undefined),
-}));
-
-jest.mock('../../services/gastosService', () => ({
-  addGasto: jest.fn().mockResolvedValue({ id: '99' }),
-}));
-
 import { Alert, Pressable, TextInput } from 'react-native';
 import NewExpenseModal from '../NewExpenseModal';
+import { ExpensesProvider } from '../../context/ExpensesContext';
 
 function renderScreen() {
   let component;
   act(() => {
-    component = renderer.create(<NewExpenseModal />);
+    component = renderer.create(
+      <ExpensesProvider>
+        <NewExpenseModal />
+      </ExpensesProvider>
+    );
   });
   return component;
 }

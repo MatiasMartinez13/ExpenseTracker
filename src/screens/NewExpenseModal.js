@@ -1,35 +1,40 @@
 import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useExpenses } from '../context/ExpensesContext';
+import { CATEGORIES } from '../data/categories';
 import { colors, spacing } from '../theme';
-import { addGasto } from '../services/gastosService';
-
-const CATEGORIES = ['Comida', 'Transporte', 'Ocio', 'Salud', 'Otros'];
 
 export default function NewExpenseModal() {
+  const { addExpense } = useExpenses();
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [notes, setNotes] = useState('');
 
-  const handleSave = async() => {
-    if(!name || !amount || !category) {
-      Alert.alert("Error","Falta llenar campos")
-      return
+  const handleSave = async () => {
+    if (!name.trim() || !amount.trim() || !category) {
+      Alert.alert('Error', 'Falta llenar campos');
+      return;
     }
-    const gasto = {
-      id: Math.floor(Math.random() * 100000) + 1,
-      nombre:name,
-      categoria:category,
-      amount:amount
-    }
-    
-    await addGasto(gasto)
+
+    addExpense({
+      title: name.trim(),
+      amount: Number(amount),
+      category,
+      notes: notes.trim(),
+    });
+
     Alert.alert(
       'Nuevo gasto',
       `Nombre: ${name}\nMonto: $${amount}\nCategoría: ${category}`
     );
-  };
 
+    setName('');
+    setAmount('');
+    setCategory(CATEGORIES[0]);
+    setNotes('');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -72,6 +77,16 @@ export default function NewExpenseModal() {
             </Pressable>
           ))}
         </View>
+
+        <Text style={styles.label}>Notas (opcional)</Text>
+        <TextInput
+          testID="input-notas"
+          style={styles.input}
+          placeholder="Ej: Compra semanal"
+          placeholderTextColor={colors.muted}
+          value={notes}
+          onChangeText={setNotes}
+        />
 
         <Pressable testID="btn-guardar" onPress={handleSave} style={styles.button}>
           <Text style={styles.buttonText}>Guardar</Text>
@@ -117,7 +132,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.s,
-    marginBottom: spacing.l,
+    marginBottom: spacing.m,
   },
   chip: {
     paddingHorizontal: spacing.m,

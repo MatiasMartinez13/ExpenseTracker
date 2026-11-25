@@ -45,15 +45,23 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 import ExpensesScreen from '../ExpensesScreen';
+import { ExpensesProvider } from '../../context/ExpensesContext';
+
+const renderWithProvider = () =>
+  render(
+    <ExpensesProvider>
+      <ExpensesScreen />
+    </ExpensesProvider>
+  );
 
 describe('ExpensesScreen - User Story #main-s1-us5: Construir listado de gastos', () => {
   test('renderiza sin errores', () => {
-    const tree = render(<ExpensesScreen />).toJSON();
+    const tree = renderWithProvider().toJSON();
     expect(tree).toBeTruthy();
   });
 
   test('muestra múltiples gastos', () => {
-    const instance = render(<ExpensesScreen />);
+    const instance = renderWithProvider();
     const texts = JSON.stringify(instance.toJSON());
     expect(texts).toContain('Supermercado');
     expect(texts).toContain('Combustible');
@@ -61,7 +69,7 @@ describe('ExpensesScreen - User Story #main-s1-us5: Construir listado de gastos'
   });
 
   test('los gastos aparecen ordenados como lista', () => {
-    const instance = render(<ExpensesScreen />);
+    const instance = renderWithProvider();
     const list = JSON.stringify(instance.toJSON());
     const supermercadoIndex = list.indexOf('Supermercado');
     const combustibleIndex = list.indexOf('Combustible');
@@ -72,7 +80,7 @@ describe('ExpensesScreen - User Story #main-s1-us5: Construir listado de gastos'
   });
 
   test('cada gasto muestra descripción y monto', () => {
-    const instance = render(<ExpensesScreen />);
+    const instance = renderWithProvider();
     const tree = JSON.stringify(instance.toJSON());
     expect(tree).toContain('25000');
     expect(tree).toContain('18000');

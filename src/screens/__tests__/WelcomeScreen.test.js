@@ -23,11 +23,16 @@ jest.mock('react-native-safe-area-context', () => {
 });
 
 import WelcomeScreen from '../WelcomeScreen';
+import { ExpensesProvider } from '../../context/ExpensesContext';
 
 function renderTree() {
   let component;
   act(() => {
-    component = renderer.create(<WelcomeScreen />);
+    component = renderer.create(
+      <ExpensesProvider>
+        <WelcomeScreen />
+      </ExpensesProvider>
+    );
   });
   return component.toJSON();
 }

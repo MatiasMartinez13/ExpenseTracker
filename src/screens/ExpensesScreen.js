@@ -1,35 +1,42 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, categoryColors } from '../theme';
-import { deleteGasto, getGastos, getGastosSync } from '../services/gastosService';
-import { useFocusEffect } from '@react-navigation/native';
+import { useExpenses } from '../context/ExpensesContext';
+import { getCategoryMeta } from '../data/categories';
+import { colors, spacing } from '../theme';
 
+function ExpenseItem({ item, onPress, onDelete }) {
+  const title = item.title ?? item.name ?? item.nombre;
+  const category = item.category ?? item.categoria;
+  const { color: dotColor } = getCategoryMeta(category);
 
-function ExpenseItem({ id, nombre, amount, onDelete }) {
   return (
     <View style={styles.item}>
-      <Text style={styles.description}>{nombre}</Text>
-      <Text style={styles.amount}>${amount}</Text>
-      <Pressable testID={`btn-borrar-${id}`} onPress={() => onDelete(id)} style={styles.trash}>
+      <Pressable
+        testID={`item-gasto-${item.id}`}
+        onPress={() => onPress?.(item.id)}
+        style={styles.itemContent}
+      >
+        <View style={[styles.dot, { backgroundColor: dotColor }]} />
+        <View style={styles.itemText}>
+          <Text style={styles.description}>{title}</Text>
+          {category ? <Text style={[styles.category, { color: dotColor }]}>{category}</Text> : null}
+        </View>
+        <Text style={styles.amount}>${item.amount}</Text>
+      </Pressable>
+      <Pressable testID={`btn-borrar-${item.id}`} onPress={() => onDelete(item.id)} style={styles.trash}>
         <Text style={styles.trashText}>❌</Text>
       </Pressable>
     </View>
   );
 }
 
-export default function ExpensesScreen() {
-  
-  const [expenses,setExpenses] = useState(() => getGastosSync())
-  useFocusEffect(
-    useCallback(() => {
-      getGastos().then(setExpenses);
-    }, [])
-  )
+export default function ExpensesScreen({ navigation }) {
+  const { expenses, removeExpense } = useExpenses();
+  const total = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
-  const handleDelete = async (id) => {
-    const actualizados = await deleteGasto(id);
-    setExpenses([...actualizados]);
+  const handleOpenDetail = (id) => {
+    navigation?.navigate('ExpenseDetail', { id });
   };
 
   return (
@@ -41,7 +48,13 @@ export default function ExpensesScreen() {
         data={expenses}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <ExpenseItem id={item.id} nombre={item.nombre} amount={item.amount} onDelete={handleDelete} />
+          <ExpenseItem item={item} onPress={handleOpenDetail} onDelete={removeExpense} />
+        )}
+        ListFooterComponent={() => (
+          <View style={styles.totalBox}>
+            <Text style={styles.totalLabel}>Total ({expenses.length} gastos)</Text>
+            <Text style={styles.totalValue}>${total}</Text>
+          </View>
         )}
         contentContainerStyle={styles.list}
       />
@@ -78,10 +91,28 @@ const styles = StyleSheet.create({
     padding: spacing.m,
     marginBottom: spacing.s,
   },
+  itemContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: spacing.s,
+  },
+  itemText: {
+    flex: 1,
+  },
   description: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+  },
+  category: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   amount: {
     fontSize: 16,
@@ -94,5 +125,24 @@ const styles = StyleSheet.create({
   },
   trashText: {
     fontSize: 20,
+  },
+  totalBox: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.m,
+    alignItems: 'center',
+    marginTop: spacing.s,
+  },
+  totalLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.muted,
+  },
+  totalValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.text,
   },
 });
