@@ -29,6 +29,12 @@ export default function WelcomeScreen({ navigation }) {
           </View>
         </View>
 
+        {count === 0 ? (
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyText}>Todavía no registraste gastos</Text>
+          </View>
+        ) : null}
+
         <View style={styles.btnRow}>
           <TouchableOpacity
             style={[styles.button, styles.buttonSecondary]}
@@ -105,6 +111,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
+  },
+  emptyBox: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    padding: spacing.m,
+    marginTop: spacing.m,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.muted,
+    textAlign: 'center',
   },
   btnRow: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useExpenses } from '../context/ExpensesContext';
 import { getCategoryMeta } from '../data/categories';
@@ -39,6 +39,23 @@ export default function ExpensesScreen({ navigation }) {
     navigation?.navigate('ExpenseDetail', { id });
   };
 
+  const handleDelete = (id) => {
+    const target = expenses.find((item) => String(item.id) === String(id));
+    const title = target?.title ?? target?.name ?? target?.nombre ?? '';
+    Alert.alert(
+      'Eliminar gasto',
+      `¿Estás seguro de que quieres eliminar "${title}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => removeExpense(id),
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -48,7 +65,12 @@ export default function ExpensesScreen({ navigation }) {
         data={expenses}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
-          <ExpenseItem item={item} onPress={handleOpenDetail} onDelete={removeExpense} />
+          <ExpenseItem item={item} onPress={handleOpenDetail} onDelete={handleDelete} />
+        )}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyText}>Todavía no registraste gastos</Text>
+          </View>
         )}
         ListFooterComponent={() => (
           <View style={styles.totalBox}>
@@ -125,6 +147,21 @@ const styles = StyleSheet.create({
   },
   trashText: {
     fontSize: 20,
+  },
+  emptyBox: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    padding: spacing.l,
+    alignItems: 'center',
+    marginBottom: spacing.s,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: colors.muted,
+    textAlign: 'center',
   },
   totalBox: {
     backgroundColor: colors.card,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useExpenses } from '../context/ExpensesContext';
 import { getCategoryMeta } from '../data/categories';
@@ -18,15 +18,35 @@ function formatExpenseDate(value) {
 
 export default function ExpenseDetailScreen({ route, navigation }) {
   const { id } = route?.params ?? {};
-  const { expenses } = useExpenses();
+  const { expenses, removeExpense } = useExpenses();
   const expense = expenses.find((item) => String(item.id) === String(id));
 
   const handleBack = () => {
     if (navigation?.canGoBack?.()) {
       navigation.goBack();
     } else {
-      navigation?.navigate?.('Main');
+      navigation?.navigate?.('Main', { screen: 'Expenses' });
     }
+  };
+
+  const handleDelete = () => {
+    if (!expense) return;
+    const title = expense.title ?? expense.name ?? expense.nombre;
+    Alert.alert(
+      'Eliminar gasto',
+      `¿Estás seguro de que quieres eliminar "${title}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            removeExpense(expense.id);
+            handleBack();
+          },
+        },
+      ]
+    );
   };
 
   if (!expense) {
@@ -87,9 +107,14 @@ export default function ExpenseDetailScreen({ route, navigation }) {
           </View>
         </View>
 
-        <Pressable testID="btn-volver" onPress={handleBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Volver</Text>
-        </Pressable>
+        <View style={styles.actions}>
+          <Pressable testID="btn-eliminar" onPress={handleDelete} style={styles.deleteButton}>
+            <Text style={styles.deleteButtonText}>Eliminar</Text>
+          </Pressable>
+          <Pressable testID="btn-volver" onPress={handleBack} style={styles.backButton}>
+            <Text style={styles.backButtonText}>Volver</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -175,6 +200,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.muted,
     marginBottom: spacing.m,
+  },
+  actions: {
+    gap: spacing.s,
+  },
+  deleteButton: {
+    backgroundColor: colors.danger,
+    borderRadius: 12,
+    paddingVertical: spacing.m,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: colors.card,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   backButton: {
     backgroundColor: colors.primary,

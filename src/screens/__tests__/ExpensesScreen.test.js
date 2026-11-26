@@ -14,19 +14,24 @@ const render = (element) => {
 // FlatList se implementa para renderizar sus items directamente.
 jest.mock('react-native', () => {
   const React = require('react');
-  const FlatList = ({ data, renderItem }) =>
+  const FlatList = ({ data, renderItem, ListEmptyComponent }) =>
     React.createElement(
       'FlatList',
       null,
-      data.map((item, index) =>
-        React.createElement('FlatListItem', { key: item.id || index }, renderItem({ item }))
-      )
+      data.length === 0 && ListEmptyComponent
+        ? React.createElement(ListEmptyComponent)
+        : data.map((item, index) =>
+            React.createElement('FlatListItem', { key: item.id || index }, renderItem({ item }))
+          )
     );
   return {
     View: (props) => React.createElement('View', null, props.children),
     Text: (props) => React.createElement('Text', null, props.children),
     Pressable: (props) => React.createElement('Pressable', { onPress: props.onPress, testID: props.testID }, props.children),
     FlatList,
+    Alert: {
+      alert: jest.fn(),
+    },
     StyleSheet: {
       create: (styles) => styles,
     },

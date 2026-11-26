@@ -5,7 +5,7 @@ import { useExpenses } from '../context/ExpensesContext';
 import { CATEGORIES } from '../data/categories';
 import { colors, spacing } from '../theme';
 
-export default function NewExpenseModal() {
+export default function NewExpenseModal({ navigation }) {
   const { addExpense } = useExpenses();
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
@@ -13,27 +13,32 @@ export default function NewExpenseModal() {
   const [notes, setNotes] = useState('');
 
   const handleSave = async () => {
-    if (!name.trim() || !amount.trim() || !category) {
-      Alert.alert('Error', 'Falta llenar campos');
+    const trimmedTitle = name.trim();
+    const numericAmount = Number(String(amount).trim().replace(',', '.'));
+
+    if (!trimmedTitle || !String(amount).trim() || Number.isNaN(numericAmount) || numericAmount <= 0 || !category) {
+      Alert.alert('Error', 'Ingresa un nombre válido y un monto mayor a cero.');
       return;
     }
 
     addExpense({
-      title: name.trim(),
-      amount: Number(amount),
+      title: trimmedTitle,
+      amount: numericAmount,
       category,
       notes: notes.trim(),
     });
 
     Alert.alert(
       'Nuevo gasto',
-      `Nombre: ${name}\nMonto: $${amount}\nCategoría: ${category}`
+      `Nombre: ${trimmedTitle}\nMonto: $${numericAmount}\nCategoría: ${category}`
     );
 
     setName('');
     setAmount('');
     setCategory(CATEGORIES[0]);
     setNotes('');
+
+    navigation?.navigate?.('Expenses');
   };
 
   return (
