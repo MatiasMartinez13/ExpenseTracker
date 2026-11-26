@@ -1,2 +1,21 @@
 global.__fbBatchedBridgeConfig = {};
 global.IS_REACT_ACT_ENVIRONMENT = true;
+
+jest.mock('@react-native-async-storage/async-storage', () => {
+  const store = new Map();
+  return {
+    __esModule: true,
+    default: {
+      getItem: jest.fn(async (key) => (store.has(key) ? store.get(key) : null)),
+      setItem: jest.fn(async (key, value) => {
+        store.set(key, String(value));
+      }),
+      removeItem: jest.fn(async (key) => {
+        store.delete(key);
+      }),
+      clear: jest.fn(async () => {
+        store.clear();
+      }),
+    },
+  };
+}, { virtual: true });

@@ -1,5 +1,11 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CATEGORIES } from '../data/categories';
+import { colors } from '../theme';
+
+export const EXPENSES_STORAGE_KEY = '@expensetracker/expenses';
+export const SETTINGS_STORAGE_KEY = '@expensetracker/settings';
 
 const INITIAL_EXPENSES = [
   {
@@ -32,7 +38,51 @@ const ExpensesContext = createContext(null);
 
 export function ExpensesProvider({ children }) {
   const [expenses, setExpenses] = useState(INITIAL_EXPENSES);
-  const [isLoaded] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Efecto de montaje: hidratación desde AsyncStorage
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadExpenses() {
+      try {
+        const storedExpenses = await AsyncStorage.getItem(EXPENSES_STORAGE_KEY);
+        if (storedExpenses !== null) {
+          const parsed = JSON.parse(storedExpenses);
+          if (Array.isArray(parsed) && isMounted) {
+            setExpenses(parsed);
+          }
+        }
+      } catch (error) {
+        console.error('Error al cargar los gastos desde AsyncStorage:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoaded(true);
+        }
+      }
+    }
+
+    loadExpenses();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Efecto de persistencia: guarda cada vez que cambian los gastos, solo si isLoaded es true
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    async function saveExpenses() {
+      try {
+        await AsyncStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(expenses));
+      } catch (error) {
+        console.error('Error al guardar los gastos en AsyncStorage:', error);
+      }
+    }
+
+    saveExpenses();
+  }, [expenses, isLoaded]);
 
   const addExpense = (data) => {
     const title = String(data?.title ?? data?.name ?? data?.nombre ?? '').trim();
@@ -68,10 +118,25 @@ export function ExpensesProvider({ children }) {
         removeExpense,
       }}
     >
-      {children}
+      {!isLoaded && ActivityIndicator ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator testID="loading-indicator" size="large" color={colors.primary} />
+        </View>
+      ) : (
+        children
+      )}
     </ExpensesContext.Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+});
 
 export function useExpenses() {
   const context = useContext(ExpensesContext);

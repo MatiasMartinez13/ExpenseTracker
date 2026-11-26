@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import ExpensesScreen from '../screens/ExpensesScreen';
 import NewExpenseModal from '../screens/NewExpenseModal';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,6 +32,14 @@ export default function TabNavigator() {
         options={{
           title: 'Nuevo Gasto',
           tabBarIcon: ({ color, size }) => <Ionicons name="add-circle" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: 'Ajustes',
+          tabBarIcon: ({ color, size }) => <Ionicons name="settings" size={size} color={color} />,
         }}
       />
     </Tab.Navigator>
