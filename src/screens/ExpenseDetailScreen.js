@@ -102,6 +102,12 @@ export default function ExpenseDetailScreen({ route, navigation }) {
             <Text style={styles.fieldValue}>{formatExpenseDate(createdAt)}</Text>
           </View>
           <View style={styles.fieldRow}>
+            <Text style={styles.fieldLabel}>Sincronización</Text>
+            <Text style={[styles.fieldValue, expense.hasPendingWrites ? styles.syncPending : styles.syncSuccess]}>
+              {expense.hasPendingWrites ? '⏳ Pendiente de sincronizar' : '✓ Sincronizado en la nube'}
+            </Text>
+          </View>
+          <View style={styles.fieldRow}>
             <Text style={styles.fieldLabel}>Notas</Text>
             <Text style={styles.fieldValue}>{expense.notes || 'Sin notas.'}</Text>
           </View>
@@ -195,6 +201,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
     marginTop: 2,
+  },
+  syncPending: {
+    color: '#b45309',
+    fontWeight: 'bold',
+  },
+  syncSuccess: {
+    color: '#15803d',
+    fontWeight: 'bold',
   },
   notFound: {
     fontSize: 16,

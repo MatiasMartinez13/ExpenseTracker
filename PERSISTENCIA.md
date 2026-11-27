@@ -64,3 +64,90 @@ Ambos valores se guardan como un objeto JSON `{ notifications, darkMode }` bajo 
 | **Confirmación de eliminación** | `Alert.alert()` nativo con botones `Cancelar` y `Eliminar` (`destructive`) | `<dialog>` o `window.confirm()` |
 | **Navegación al detalle** | `navigation.navigate('ExpenseDetail', { id })` y búsqueda en Context | Ruta `/expenses/:id` con `useParams()` y búsqueda en Context |
 | **Variables de entorno** | Archivo `.env` con prefijo `EXPO_PUBLIC_` | Archivo `.env` con prefijo `VITE_` |
+
+---
+
+## 5. Persistencia Offline en Firestore y Detección de la Sync Queue (`hasPendingWrites`)
+
+En la etapa de Firestore compartida, la aplicación móvil utiliza el SDK de Firestore para registrar y escuchar gastos en tiempo real:
+
+```javascript
+// src/services/firebase.js
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+```
+
+### Visualización de la Sync Queue con `doc.metadata.hasPendingWrites`
+
+En `src/context/ExpensesContext.js`, se configuró `onSnapshot` con `{ includeMetadataChanges: true }`. Esto permite que el listener capture cuando el documento está en la cola local pendiente de sincronizar (`hasPendingWrites: true`) y cuando pasa a sincronizado (`hasPendingWrites: false`):
+
+```javascript
+const unsubscribe = onSnapshot(
+  q,
+  { includeMetadataChanges: true },
+  (snapshot) => {
+    const items = snapshot.docs.map((snapshotDoc) => {
+      const data = snapshotDoc.data({ serverTimestamps: 'estimate' });
+      return {
+        id: snapshotDoc.id,
+        ...data,
+        hasPendingWrites: snapshotDoc.metadata.hasPendingWrites,
+        createdAt: data.createdAt?.toDate
+          ? data.createdAt.toDate().toISOString()
+          : data.createdAt ?? new Date().toISOString(),
+      };
+    });
+    setExpenses(items);
+    setIsLoaded(true);
+  }
+);
+```
+
+- **En `ExpensesScreen.js`:** Si `item.hasPendingWrites === true`, se renderiza una insignia `⏳ Pendiente` junto al título del gasto.
+- **En `ExpenseDetailScreen.js`:** Se muestra el estado de conexión: `⏳ Pendiente de sincronizar` o `✓ Sincronizado en la nube`.
+
+---
+
+## 6. Matriz de Pruebas Offline
+
+| # | Prueba | Procedimiento en React Native | ¿Se conservó / sincronizó? | Observaciones |
+|---|---|---|:---:|---|
+| **1** | Sin conexión, crear un gasto. ¿Aparece en el listado? | Activar **Modo avión** en el dispositivo móvil / emulador y registrar un gasto. | **SÍ** | Aparece de inmediato en el listado con la insignia `⏳ Pendiente` gracias a la cola en memoria de Firestore. |
+| **2** | Volver a conectar. ¿Aparece en Firestore Console y en la otra app? | Desactivar Modo avión. Observar consola y la PWA. | **SÍ** | La insignia desaparece en React Native y el documento se refleja en Firestore y en la PWA en tiempo real. |
+| **3** | Sin conexión, crear un gasto, **cerrar la app** y volver a abrirla con conexión. ¿Se conservó? | Crear gasto en Modo avión, **forzar cierre desde el selector de apps** y reabrir con internet. | **DEPENDE DEL MOTOR DE CACHÉ** *(Ver análisis detallado en Sección 7)* | Si el SDK JS corre en memoria pura en RN sin IndexedDB, la cola se pierde al matar el proceso. |
+| **4** | Sin conexión, abrir la app desde cero. ¿Se ven los gastos? | Abrir la app desde cero en Modo avión. | **SÍ (Ajustes y gastos en caché)** | Los ajustes se cargan desde `AsyncStorage` y la UI inicial renderiza sin errores de conexión. |
+
+---
+
+## 7. Análisis Teórico: ¿Por qué la Prueba 3 da resultados distintos en React Native vs. PWA?
+
+### En React Native (Expo con Firebase JS SDK)
+- El SDK web de Firebase (`firebase/firestore`) ejecutado dentro del runtime de JavaScript de React Native / Hermes opera por defecto con **caché en memoria RAM** debido a la ausencia nativa de la API `window.indexedDB`.
+- Cuando se realiza un cierre forzado (*force kill*) de la aplicación desde el selector de multitarea del sistema operativo, el proceso de JavaScript se destruye de inmediato.
+- Si las mutaciones locales pendientes solo residían en la cola en memoria del SDK JS, se pierden al morir el proceso. Al reabrir la app, esa transacción no llega a enviarse a Cloud Firestore. *(A menos que se utilice la integración nativa `@react-native-firebase/firestore` que escribe en SQLite/LevelDB del sistema operativo)*.
+
+### En la PWA (Web / Navegador)
+- La PWA cuenta con la API estándar de **IndexedDB** a través de `persistentLocalCache({})`.
+- Las transacciones de escritura se persisten en la base de datos IndexedDB en el disco local del dispositivo antes de confirmar el documento localmente.
+- Por tanto, al cerrar la pestaña o el navegador y reabrir con conexión, el SDK de Firestore inspecciona el almacén de IndexedDB, recupera la **Sync Queue** pendiente y la sube al servidor de Cloud Firestore sin pérdidas.
+
+---
+
+## 8. Evidencias y Demostración
+
+### Capturas de Pantalla
+- **Prueba 1 (Modo avión + Gasto con insignia Pendiente):**  
+  `![Prueba 1 RN](./docs/prueba-1-rn-offline.png)`
+- **Prueba 2 (Reconexión y sincronización):**  
+  `![Prueba 2 RN](./docs/prueba-2-rn-sync.png)`
+- **Prueba 3 (Cierre de app y reapertura):**  
+  `![Prueba 3 RN](./docs/prueba-3-rn-reopen.png)`
+- **Prueba 4 (Inicio en frío sin red):**  
+  `![Prueba 4 RN](./docs/prueba-4-rn-cold-start.png)`
+
+### Video Demostrativo
+- **Video / GIF comparativo en tiempo real:** `[Enlace a video demo](./docs/demo-sync-ambas-apps.mp4)`
+

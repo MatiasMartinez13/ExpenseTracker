@@ -19,7 +19,14 @@ function ExpenseItem({ item, onPress, onDelete }) {
       >
         <View style={[styles.dot, { backgroundColor: dotColor }]} />
         <View style={styles.itemText}>
-          <Text style={styles.description}>{title}</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.description}>{title}</Text>
+            {item.hasPendingWrites ? (
+              <View style={styles.pendingBadge}>
+                <Text style={styles.pendingText}>⏳ Pendiente</Text>
+              </View>
+            ) : null}
+          </View>
           {category ? <Text style={[styles.category, { color: dotColor }]}>{category}</Text> : null}
         </View>
         <Text style={styles.amount}>${item.amount}</Text>
@@ -126,6 +133,25 @@ const styles = StyleSheet.create({
   },
   itemText: {
     flex: 1,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  pendingBadge: {
+    backgroundColor: '#fef3c7',
+    borderWidth: 1,
+    borderColor: '#fde68a',
+    borderRadius: 9999,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+  },
+  pendingText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#b45309',
   },
   description: {
     fontSize: 16,
