@@ -114,6 +114,13 @@ export default function ExpenseDetailScreen({ route, navigation }) {
         </View>
 
         <View style={styles.actions}>
+          <Pressable
+            testID="btn-editar"
+            onPress={() => navigation?.navigate?.('NewExpense', { expense })}
+            style={styles.editButton}
+          >
+            <Text style={styles.editButtonText}>Editar</Text>
+          </Pressable>
           <Pressable testID="btn-eliminar" onPress={handleDelete} style={styles.deleteButton}>
             <Text style={styles.deleteButtonText}>Eliminar</Text>
           </Pressable>
@@ -217,6 +224,19 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: spacing.s,
+  },
+  editButton: {
+    backgroundColor: '#eef2ff',
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 12,
+    paddingVertical: spacing.m,
+    alignItems: 'center',
+  },
+  editButtonText: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   deleteButton: {
     backgroundColor: colors.danger,

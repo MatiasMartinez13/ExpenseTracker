@@ -151,3 +151,27 @@ const unsubscribe = onSnapshot(
 ### Video Demostrativo
 - **Video / GIF comparativo en tiempo real:** `[Enlace a video demo](./docs/demo-sync-ambas-apps.mp4)`
 
+
+
+---
+
+## 9. User Story #7 (Bonus 3): Edición, Indicador de Conexión y Auth Anónima
+
+### 9.1 Edición de gastos con `updateDoc()`
+- Se agregó `updateExpense(id, data)` en `src/context/ExpensesContext.js` utilizando `updateDoc(doc(db, 'users', user.uid, 'expenses', String(id)), updatedFields)` sin bloquear la UI en modo offline.
+- En `src/screens/ExpenseDetailScreen.js` se agregó el botón **Editar** (`testID="btn-editar"`), que navega a `NewExpenseModal.js` pasando `{ expense }`. El formulario se reutiliza en modo edición precargando los campos y actualizando el documento en tiempo real.
+
+### 9.2 Indicador de conexión (`@react-native-community/netinfo`)
+- Se creó `src/components/OfflineBanner.js` escuchando `NetInfo.addEventListener`, montado de forma global en `App.js`.
+- Cuando `isConnected === false` o `isInternetReachable === false`, muestra el aviso **"Sin conexión — Los cambios se sincronizarán al volver a conectarse"**.
+
+### 9.3 Firebase Authentication anónima y persistencia con `AsyncStorage`
+- En `src/services/firebase.js` se configuró la persistencia de sesión móvil con `initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) })`.
+- En `ExpensesContext.js`, `onAuthStateChanged` inicia sesión automáticamente con `signInAnonymously(auth)` si no existe sesión previa, y la colección pasó a `users/{uid}/expenses` protegida por `firestore.rules` (`request.auth != null && request.auth.uid == userId`).
+
+#### ¿Por qué las apps dejan de compartir gastos con usuarios anónimos y cómo resolverlo?
+Al usar `signInAnonymously()`, la app móvil y la PWA crean **dos usuarios anónimos independientes con distinto `uid`**, por lo que cada una guarda sus datos en su propia ruta (`users/{uid}/expenses`) y dejan de verse entre sí.
+
+Para resolverlo:
+1. **Unificar identidad con proveedor de Auth:** migrar o vincular la cuenta anónima (`linkWithCredential`) a **Google** o **Email/Contraseña** para que la persona usuaria inicie sesión en el teléfono y en la PWA con el **mismo `uid`**.
+2. **Espacios compartidos (`groups/{groupId}/expenses`):** para compartir gastos entre distintos dispositivos o integrantes, almacenar los documentos bajo un espacio compartido y controlar el acceso desde las reglas de Firestore verificando la membresía del `uid`.

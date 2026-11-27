@@ -1,16 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useExpenses } from '../context/ExpensesContext';
 import { CATEGORIES } from '../data/categories';
 import { colors, spacing } from '../theme';
 
-export default function NewExpenseModal({ navigation }) {
-  const { addExpense } = useExpenses();
-  const [name, setName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [notes, setNotes] = useState('');
+export default function NewExpenseModal({ route, navigation }) {
+  const { addExpense, updateExpense } = useExpenses();
+  const expenseToEdit = route?.params?.expense ?? null;
+  const isEditing = Boolean(expenseToEdit);
+
+  const [name, setName] = useState(
+    () => expenseToEdit?.title ?? expenseToEdit?.name ?? expenseToEdit?.nombre ?? ''
+  );
+  const [amount, setAmount] = useState(() =>
+    expenseToEdit?.amount != null ? String(expenseToEdit.amount) : ''
+  );
+  const [category, setCategory] = useState(
+    () => expenseToEdit?.category ?? expenseToEdit?.categoria ?? CATEGORIES[0]
+  );
+  const [notes, setNotes] = useState(() => expenseToEdit?.notes ?? '');
+
+  useEffect(() => {
+    if (expenseToEdit) {
+      setName(expenseToEdit.title ?? expenseToEdit.name ?? expenseToEdit.nombre ?? '');
+      setAmount(expenseToEdit.amount != null ? String(expenseToEdit.amount) : '');
+      setCategory(expenseToEdit.category ?? expenseToEdit.categoria ?? CATEGORIES[0]);
+      setNotes(expenseToEdit.notes ?? '');
+    }
+  }, [expenseToEdit]);
 
   const handleSave = async () => {
     const trimmedTitle = name.trim();
@@ -18,6 +36,23 @@ export default function NewExpenseModal({ navigation }) {
 
     if (!trimmedTitle || !String(amount).trim() || Number.isNaN(numericAmount) || numericAmount <= 0 || !category) {
       Alert.alert('Error', 'Ingresa un nombre válido y un monto mayor a cero.');
+      return;
+    }
+
+    if (isEditing) {
+      updateExpense(expenseToEdit.id, {
+        title: trimmedTitle,
+        amount: numericAmount,
+        category,
+        notes: notes.trim(),
+      });
+
+      Alert.alert(
+        'Gasto actualizado',
+        `Nombre: ${trimmedTitle}\nMonto: $${numericAmount}\nCategoría: ${category}`
+      );
+
+      navigation?.goBack?.();
       return;
     }
 
@@ -44,7 +79,7 @@ export default function NewExpenseModal({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Nuevo gasto</Text>
+        <Text style={styles.title}>{isEditing ? 'Editar gasto' : 'Nuevo gasto'}</Text>
 
         <Text style={styles.label}>Nombre del gasto</Text>
         <TextInput
@@ -94,7 +129,9 @@ export default function NewExpenseModal({ navigation }) {
         />
 
         <Pressable testID="btn-guardar" onPress={handleSave} style={styles.button}>
-          <Text style={styles.buttonText}>Guardar</Text>
+          <Text style={styles.buttonText}>
+            {isEditing ? 'Guardar cambios' : 'Guardar'}
+          </Text>
         </Pressable>
       </View>
     </SafeAreaView>

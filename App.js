@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { ExpensesProvider } from './src/context/ExpensesContext';
+import OfflineBanner from './src/components/OfflineBanner';
 import StackNavigator from './src/navigation/StackNavigator';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -19,6 +20,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ExpensesProvider>
+          <OfflineBanner />
           <NavigationContainer>
             <StackNavigator />
             <StatusBar style="auto" />
